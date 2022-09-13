@@ -40,23 +40,40 @@
         <h4>Leave allocations</h4>
     </div>
     <ul class="list-group list-group-flush">
+        <li class ="list-group-item">
+            <div class="row">
+                <div class="col">Leave name</div>
+                <div class="col">Original allocation</div>
+                <div class="col">Current allocation</div>
+                <div class="col">Action</div>
+            </div>
+        </li>
         @foreach(var allocation in Model.LeaveAllocations)
         {
             <li class="list-group-item">
-                <h6>
-                    @allocation.LeaveType.Name
-                    <button type="button" class="btn btn-primary">
-                        Allocated days <span class="badge bg-secondary">@allocation.LeaveType.DefaultDays</span>
-                    </button>
-                    <button type="button" class="btn btn-primary">
-                        Remaining days <span class="badge bg-secondary">@allocation.NumberOfDays</span>
-                    </button>
-                </h6>
+                <div class="row">
+                    <div class="col">
+                        <h6>@allocation.LeaveType.Name</h6>
+                    </div>
+                    <div class="col">
+                        <button type="button" class="btn btn-primary">
+                            Allocated days <span class="badge bg-secondary">@allocation.LeaveType.DefaultDays</span>
+                        </button>
+                    </div>
+                    <div class="col">
+                        <button type="button" class="btn btn-primary">
+                            Remaining days <span class="badge bg-secondary">@allocation.NumberOfDays</span>
+                        </button>
+                    </div>
+                    <div class="col">
+                        <a class="btn btn-warning" asp-action="EditAllocation" asp-route-id="@allocation.Id"><i class="fa-regular fa-pen-to-square"></i>Edit Allocation</a>
+                    </div>
+                </div>
             </li>
         }
     </ul>
 </div>
+<br/>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index" class="btn btn-dark">Back to List</a> &nbsp;
 </div>
