@@ -2,7 +2,7 @@
 
 namespace LeaveManagement.Web.Models
 {
-    public class LeaveRequestVM
+    public class LeaveRequestVM // Better create one parent viewmodel and inherit it by subsequents
     {
         public int Id { get; set; }
 
@@ -18,6 +18,9 @@ namespace LeaveManagement.Web.Models
 
         [Display(Name = "Date requested")]
         public DateTime DateRequested { get; set; }
+
+        [Display(Name = "Request comment")]
+        public string? RequestComments { get; set; }
 
         public bool? Approved { get; set; }
         public bool Cancelled { get; set; }
