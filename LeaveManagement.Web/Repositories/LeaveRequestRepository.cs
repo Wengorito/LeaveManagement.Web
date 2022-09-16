@@ -3,6 +3,7 @@ using LeaveManagement.Web.Contracts;
 using LeaveManagement.Web.Data;
 using LeaveManagement.Web.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace LeaveManagement.Web.Repositories
 {
@@ -34,6 +35,39 @@ namespace LeaveManagement.Web.Repositories
             leaveRequest.RequestingEmployeeId = user.Id;
 
             await AddAscync(leaveRequest);
+        }
+
+        public async Task<AdminLeaveRequestVM> GetAdminLeaveRequestList()
+        {
+            var leaveRequests = await _context.LeaveRequests.Include(q => q.LeaveType).ToListAsync();
+
+            var model = new AdminLeaveRequestVM
+            {
+                TotalRequests = leaveRequests.Count,
+                ApprovedRequests = leaveRequests.Count(q => q.Approved == true),
+                PendingRequests = leaveRequests.Count(q => q.Approved == null),
+                RejecetedRequests = leaveRequests.Count(q => q.Approved == false),
+                LeaveRequests = _mapper.Map<List<LeaveRequestVM>>(leaveRequests)
+            };
+
+            foreach (var leaveRequest in model.LeaveRequests)
+            {
+                leaveRequest.Employee = _mapper.Map<EmployeeVM>(await _userManager.FindByIdAsync(leaveRequest.RequestingEmployeeId));
+            }
+
+            return model;
+        }
+
+        public async Task<List<LeaveRequestVM>> GetAllAsync(string employeeId)
+        {
+            var requests = await _context.LeaveRequests
+                .Include(q => q.LeaveType)
+                .Where(q => q.RequestingEmployeeId == employeeId)
+                .ToListAsync();
+
+            var model = _mapper.Map<List<LeaveRequestVM>>(requests);
+
+            return model;
         }
     }
 }

@@ -3,45 +3,45 @@ using LeaveManagement.Web.Constants;
 using LeaveManagement.Web.Contracts;
 using LeaveManagement.Web.Data;
 using LeaveManagement.Web.Models;
-using LeaveManagement.Web.Repositories;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LeaveManagement.Web.Controllers
 {
+    [Authorize(Roles = Roles.Administrator)]
     public class EmployeesController : Controller
     {
-        private readonly ILeaveAllocationRepository leaveAllocationRepository;
-        private readonly UserManager<Employee> userManager;
-        private readonly IMapper mapper;
+        private readonly ILeaveAllocationRepository _leaveAllocationRepository;
+        private readonly UserManager<Employee> _userManager;
+        private readonly IMapper _mapper;
 
         public EmployeesController(ILeaveAllocationRepository leaveAllocationRepository, UserManager<Employee> userManager, IMapper mapper)
         {
-            this.leaveAllocationRepository = leaveAllocationRepository;
-            this.userManager = userManager;
-            this.mapper = mapper;
+            _leaveAllocationRepository = leaveAllocationRepository;
+            _userManager = userManager;
+            _mapper = mapper;
         }
 
         // GET: EmployeesController
         public async Task<IActionResult> Index()
         {
-            var employees = await userManager.GetUsersInRoleAsync(Roles.User);
-            var model = mapper.Map<List<EmployeeVM>>(employees);
+            var employees = await _userManager.GetUsersInRoleAsync(Roles.User);
+            var model = _mapper.Map<List<EmployeeVM>>(employees);
             return View(model);
         }
 
         // GET: EmployeesController/ViewAllocations/employeeId
         public async Task<IActionResult> ViewAllocations(string id)
         {
-            var model = await leaveAllocationRepository.GetEmployeeAllocations(id);
+            var model = await _leaveAllocationRepository.GetEmployeeAllocations(id);
             return View(model);
         }
 
         // GET: EmployeesController/EditAllocation/5
         public async Task<ActionResult> EditAllocation(int id)
         {
-            var model = await leaveAllocationRepository.GetEmployeeAllocation(id);
+            var model = await _leaveAllocationRepository.GetEmployeeAllocation(id);
             if (model == null)
             {
                 return NotFound();
@@ -57,19 +57,19 @@ namespace LeaveManagement.Web.Controllers
         {
             try
             {
-                if(ModelState.IsValid)
+                if (ModelState.IsValid)
                 {
-                    if (await leaveAllocationRepository.UpdateEmployeeAllocation(model))
+                    if (await _leaveAllocationRepository.UpdateEmployeeAllocation(model))
                         return RedirectToAction(nameof(ViewAllocations), new { id = model.EmployeeId });
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 ModelState.AddModelError(string.Empty, "An Error has occurred. Please try again later");
             }
 
-            model.Employee = mapper.Map<EmployeeVM>(await userManager.FindByIdAsync(model.EmployeeId));
-            model.LeaveType = mapper.Map<LeaveTypeVM>(await leaveAllocationRepository.GetAsync(model.Id));
+            model.Employee = _mapper.Map<EmployeeVM>(await _userManager.FindByIdAsync(model.EmployeeId));
+            model.LeaveType = _mapper.Map<LeaveTypeVM>(await _leaveAllocationRepository.GetAsync(model.Id));
 
             return View(model);
         }

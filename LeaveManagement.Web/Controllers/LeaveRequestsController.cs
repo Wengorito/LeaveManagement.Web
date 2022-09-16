@@ -1,30 +1,49 @@
-﻿using LeaveManagement.Web.Contracts;
+﻿using LeaveManagement.Web.Constants;
+using LeaveManagement.Web.Contracts;
 using LeaveManagement.Web.Data;
 using LeaveManagement.Web.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace LeaveManagement.Web.Controllers
 {
     [Authorize]
     public class LeaveRequestsController : Controller
     {
+        private readonly ILeaveAllocationRepository _leaveAllocationRepository;
         private readonly ILeaveRequestRepository _leaveRequestRepository;
         private readonly ApplicationDbContext _context;
 
-        public LeaveRequestsController(ILeaveRequestRepository leaveRequestRepository, ApplicationDbContext applicationDbContext)
+        public LeaveRequestsController(
+            ILeaveAllocationRepository leaveAllocationRepository,
+            ILeaveRequestRepository leaveRequestRepository,
+            ApplicationDbContext applicationDbContext)
         {
+            _leaveAllocationRepository = leaveAllocationRepository;
             _leaveRequestRepository = leaveRequestRepository;
-            this._context = applicationDbContext;
+            _context = applicationDbContext;
         }
 
-        // GET: LeaveRequests
+        [Authorize(Roles = Roles.Administrator)]
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.LeaveRequests.Include(l => l.LeaveType);
-            return View(await applicationDbContext.ToListAsync());
+            var model = await _leaveRequestRepository.GetAdminLeaveRequestList();
+            return View(model);
+        }
+
+        public async Task<IActionResult> MyLeaves()
+        {
+            var employeeId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var allocations = await _leaveAllocationRepository.GetAllAsync(employeeId);
+            var requests = await _leaveRequestRepository.GetAllAsync(employeeId);
+
+            var model = new MyLeavesVM(allocations, requests);
+
+            return View(model);
         }
 
         // GET: LeaveRequests/Details/5
@@ -133,29 +152,10 @@ namespace LeaveManagement.Web.Controllers
             return View(leaveRequest);
         }
 
-        // GET: LeaveRequests/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null || _context.LeaveRequests == null)
-            {
-                return NotFound();
-            }
-
-            var leaveRequest = await _context.LeaveRequests
-                .Include(l => l.LeaveType)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (leaveRequest == null)
-            {
-                return NotFound();
-            }
-
-            return View(leaveRequest);
-        }
-
         // POST: LeaveRequests/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             if (_context.LeaveRequests == null)
             {
@@ -168,7 +168,7 @@ namespace LeaveManagement.Web.Controllers
             }
 
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(MyLeaves));
         }
 
         private bool LeaveRequestExists(int id)

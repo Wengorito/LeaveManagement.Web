@@ -17,7 +17,7 @@ namespace LeaveManagement.Web.Repositories
         private readonly IMapper mapper;
 
         public LeaveAllocationRepository(
-            ApplicationDbContext context, 
+            ApplicationDbContext context,
             UserManager<Employee> userManager,
             ILeaveTypeRepository leaveTypeRepository,
             IMapper mapper) : base(context)
@@ -60,17 +60,20 @@ namespace LeaveManagement.Web.Repositories
             await AddRangeAscync(allocations);
         }
 
-        public async Task<EmployeeAllocationVM> GetEmployeeAllocations(string employeeId)
+        public async Task<List<LeaveAllocationVM>> GetAllAsync(string employeeId)
         {
             var allocations = await context.LeaveAllocations
                 .Include(q => q.LeaveType)
                 .Where(q => q.EmployeeId == employeeId)
                 .ToListAsync();
 
-            var employee = await userManager.FindByIdAsync(employeeId);
+            return mapper.Map<List<LeaveAllocationVM>>(allocations);
+        }
 
-            var model = mapper.Map<EmployeeAllocationVM>(employee);
-            model.LeaveAllocations = mapper.Map<List<LeaveAllocationVM>>(allocations);                
+        public async Task<EmployeeAllocationsVM> GetEmployeeAllocations(string employeeId)
+        {
+            var model = mapper.Map<EmployeeAllocationsVM>(await userManager.FindByIdAsync(employeeId));
+            model.LeaveAllocations = GetAllAsync(employeeId).Result;
 
             return model;
         }
