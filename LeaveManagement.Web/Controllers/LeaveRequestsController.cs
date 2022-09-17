@@ -5,6 +5,7 @@ using LeaveManagement.Web.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
@@ -16,15 +17,18 @@ namespace LeaveManagement.Web.Controllers
         private readonly ILeaveAllocationRepository _leaveAllocationRepository;
         private readonly ILeaveRequestRepository _leaveRequestRepository;
         private readonly ApplicationDbContext _context;
+        private readonly ILeaveTypeRepository _leaveTypesRepository;
 
         public LeaveRequestsController(
             ILeaveAllocationRepository leaveAllocationRepository,
             ILeaveRequestRepository leaveRequestRepository,
-            ApplicationDbContext applicationDbContext)
+            ApplicationDbContext applicationDbContext,
+            ILeaveTypeRepository leaveTypesRepository)
         {
             _leaveAllocationRepository = leaveAllocationRepository;
             _leaveRequestRepository = leaveRequestRepository;
             _context = applicationDbContext;
+            _leaveTypesRepository = leaveTypesRepository;
         }
 
         [Authorize(Roles = Roles.Administrator)]
@@ -39,7 +43,7 @@ namespace LeaveManagement.Web.Controllers
         {
             var employeeId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var allocations = await _leaveAllocationRepository.GetAllAsync(employeeId);
+            var allocations = await _leaveAllocationRepository.GetAllVMAsync(employeeId);
             var requests = await _leaveRequestRepository.GetAllAsync(employeeId);
 
             var model = new MyLeavesVM(allocations, requests);
@@ -62,6 +66,7 @@ namespace LeaveManagement.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = Roles.Administrator)]
         public async Task<IActionResult> ApproveRequest(int id, bool approved)
         {
             try
@@ -80,9 +85,11 @@ namespace LeaveManagement.Web.Controllers
         // GET: LeaveRequests/Create
         public IActionResult Create()
         {
+            var employeeId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var model = new LeaveRequestCreateVM
-            {
-                LeaveTypes = new SelectList(_context.LeaveTypes, "Id", "Name")
+            {                
+                RequestingEmployeeId = employeeId,
+                LeaveTypes = new SelectList(_leaveTypesRepository.GetEmployeeLeaveTypes(employeeId).Result, "Id", "Name")
             };
             return View(model);
         }
@@ -99,7 +106,7 @@ namespace LeaveManagement.Web.Controllers
                 if (ModelState.IsValid)
                 {
                     await _leaveRequestRepository.CreateLeaveRequest(model);
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(MyLeaves));
                 }
             }
             catch (Exception ex)
@@ -107,7 +114,7 @@ namespace LeaveManagement.Web.Controllers
                 ModelState.AddModelError(string.Empty, "An Error has occurred. Please try again later");
             }
 
-            model.LeaveTypes = new SelectList(_context.LeaveTypes, "Id", "Name", model.LeaveTypeId);
+            model.LeaveTypes = new SelectList(_leaveTypesRepository.GetEmployeeLeaveTypes(model.RequestingEmployeeId).Result, "Id", "Name", model.LeaveTypeId);
             return View(model);
         }
 

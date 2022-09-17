@@ -72,12 +72,13 @@
             <input name="approved" value=true type="hidden" />
             <button type="submit" class="btn btn-success">Approve</button>
         </form>
+        <br />
         <form asp-action="ApproveRequest">
             <input name="Id" value="@Model.Id" type="hidden" />
-            <input name="approved" value=true type="hidden" />
+            <input name="approved" value=false type="hidden" />
             <button type="submit" class=" btn btn-danger">Reject</button>
         </form>
     }
-    <br />
+    <hr />
     <a class="btn btn-dark" asp-action="Index">Back to List</a>
 </div>

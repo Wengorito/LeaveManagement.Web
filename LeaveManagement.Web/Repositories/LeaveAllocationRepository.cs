@@ -60,7 +60,7 @@ namespace LeaveManagement.Web.Repositories
             await AddRangeAscync(allocations);
         }
 
-        public async Task<List<LeaveAllocationVM>> GetAllAsync(string employeeId)
+        public async Task<List<LeaveAllocationVM>> GetAllVMAsync(string employeeId)
         {
             var allocations = await _context.LeaveAllocations
                 .Include(q => q.LeaveType)
@@ -73,7 +73,7 @@ namespace LeaveManagement.Web.Repositories
         public async Task<EmployeeAllocationsVM> GetEmployeeAllocations(string employeeId)
         {
             var model = _mapper.Map<EmployeeAllocationsVM>(await _userManager.FindByIdAsync(employeeId));
-            model.LeaveAllocations = GetAllAsync(employeeId).Result;
+            model.LeaveAllocations = GetAllVMAsync(employeeId).Result;
 
             return model;
         }

@@ -40,7 +40,7 @@ namespace LeaveManagement.Web.Repositories
 
             if (approved)
             {
-                var allocation = await _leaveAllocationRepository.GetEmployeeAllocation(leaveRequest.RequestingEmployeeId, leaveRequestId);
+                var allocation = await _leaveAllocationRepository.GetEmployeeAllocation(leaveRequest.RequestingEmployeeId, leaveRequest.LeaveTypeId);
 
                 if (allocation == null)
                     return;
@@ -56,6 +56,7 @@ namespace LeaveManagement.Web.Repositories
 
         public async Task CreateLeaveRequest(LeaveRequestCreateVM model)
         {
+            // Here I retrieve user id anyway - why not attach it to the VM
             var user = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext?.User);
 
             var leaveRequest = _mapper.Map<LeaveRequest>(model);
