@@ -3,12 +3,14 @@
     public class MyLeavesVM
     {
         public List<LeaveAllocationVM> LeaveAllocations { get; set; }
-        public List<LeaveRequestVM> LeaveRequests { get; set; }
+        public List<LeaveRequestVM> ArchivalRequests { get; set; }
+        public List<LeaveRequestVM> PendingRequests { get; set; }
 
-        public MyLeavesVM(List<LeaveAllocationVM> allocations, List<LeaveRequestVM> requests)
+        public MyLeavesVM(List<LeaveAllocationVM> allocations, List<LeaveRequestVM> archivalRequests, List<LeaveRequestVM> pendingRequests)
         {
             LeaveAllocations = allocations;
-            LeaveRequests = requests;
+            ArchivalRequests = archivalRequests;
+            PendingRequests = pendingRequests;
         }
     }
 }

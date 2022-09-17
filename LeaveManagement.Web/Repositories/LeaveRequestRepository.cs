@@ -87,11 +87,25 @@ namespace LeaveManagement.Web.Repositories
             return model;
         }
 
-        public async Task<List<LeaveRequestVM>> GetAllAsync(string employeeId)
+        public async Task<List<LeaveRequestVM>> GetArchivalAsync(string employeeId)
         {
             var requests = await _context.LeaveRequests
                 .Include(q => q.LeaveType)
                 .Where(q => q.RequestingEmployeeId == employeeId)
+                .Where(q => q.Approved != null)
+                .ToListAsync();
+
+            var model = _mapper.Map<List<LeaveRequestVM>>(requests);
+
+            return model;
+        }
+
+        public async Task<List<LeaveRequestVM>> GetPendingAsync(string employeeId)
+        {
+            var requests = await _context.LeaveRequests
+                .Include(q => q.LeaveType)
+                .Where(q => q.RequestingEmployeeId == employeeId)
+                .Where(q => q.Approved == null)
                 .ToListAsync();
 
             var model = _mapper.Map<List<LeaveRequestVM>>(requests);

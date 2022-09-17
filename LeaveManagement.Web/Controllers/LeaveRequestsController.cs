@@ -14,21 +14,21 @@ namespace LeaveManagement.Web.Controllers
     [Authorize]
     public class LeaveRequestsController : Controller
     {
-        private readonly ILeaveAllocationRepository _leaveAllocationRepository;
         private readonly ILeaveRequestRepository _leaveRequestRepository;
-        private readonly ApplicationDbContext _context;
+        private readonly ILeaveAllocationRepository _leaveAllocationRepository;
         private readonly ILeaveTypeRepository _leaveTypesRepository;
+        private readonly ApplicationDbContext _context;
 
         public LeaveRequestsController(
-            ILeaveAllocationRepository leaveAllocationRepository,
             ILeaveRequestRepository leaveRequestRepository,
-            ApplicationDbContext applicationDbContext,
-            ILeaveTypeRepository leaveTypesRepository)
+            ILeaveAllocationRepository leaveAllocationRepository,
+            ILeaveTypeRepository leaveTypesRepository,
+            ApplicationDbContext applicationDbContext)
         {
-            _leaveAllocationRepository = leaveAllocationRepository;
             _leaveRequestRepository = leaveRequestRepository;
-            _context = applicationDbContext;
+            _leaveAllocationRepository = leaveAllocationRepository;
             _leaveTypesRepository = leaveTypesRepository;
+            _context = applicationDbContext;
         }
 
         [Authorize(Roles = Roles.Administrator)]
@@ -44,9 +44,10 @@ namespace LeaveManagement.Web.Controllers
             var employeeId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var allocations = await _leaveAllocationRepository.GetAllVMAsync(employeeId);
-            var requests = await _leaveRequestRepository.GetAllAsync(employeeId);
+            var archivalRequests = await _leaveRequestRepository.GetArchivalAsync(employeeId);
+            var pendingRequests = await _leaveRequestRepository.GetPendingAsync(employeeId);
 
-            var model = new MyLeavesVM(allocations, requests);
+            var model = new MyLeavesVM(allocations, archivalRequests, pendingRequests);
 
             return View(model);
         }

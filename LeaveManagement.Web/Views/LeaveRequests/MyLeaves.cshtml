@@ -37,32 +37,31 @@
             </li>
         }
     </ul>
-
-<h4>Leave requests</h4>
 </div>
+<br />
+<h4>Active requests</h4>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.LeaveRequests[0].StartDate)
+                @Html.DisplayNameFor(model => model.PendingRequests[0].StartDate)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.LeaveRequests[0].EndDate)
+                @Html.DisplayNameFor(model => model.PendingRequests[0].EndDate)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.LeaveRequests[0].LeaveType)
+                @Html.DisplayNameFor(model => model.PendingRequests[0].LeaveType)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.LeaveRequests[0].Approved)
+                Approval
             </th>
             <th>
                 Cancel request
             </th>
-            <th></th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model.LeaveRequests)
+        @foreach (var item in Model.PendingRequests)
         {
             <tr>
                 <td>
@@ -89,8 +88,63 @@
                     }
                 </td>
                 <td>
-                    <button data-id="@item.Id" class="btn btn-danger btn-sm deleteBtn" type="button"><i class="fa-regular fa-trash-can"></i></button>
+                    @if (item.Approved == null)
+                    {
+                        <button data-id="@item.Id" class="btn btn-danger btn-sm deleteBtn" type="button"><i class="fa-regular fa-trash-can"></i></button>
+                    }
                 </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<br />
+<h4>Archival requests</h4>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ArchivalRequests[0].StartDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ArchivalRequests[0].EndDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ArchivalRequests[0].LeaveType)
+            </th>
+            <th>
+                Approval
+            </th>
+            <th>This should be hidden</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.ArchivalRequests)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StartDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EndDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LeaveType.Name)
+                </td>
+                <td>
+                    @if (item.Cancelled)
+                    {
+                        <span class="badge bg-secondary">Cancelled</span>
+                    }
+                    else if (item.Approved == true)
+                    {
+                        <span class="badge bg-success">Approved</span>
+                    }
+                    else if (item.Approved == false)
+                    {
+                        <span class="badge bg-danger">Rejected</span>
+                    }
+                </td>
+                <td></td>
             </tr>
         }
     </tbody>

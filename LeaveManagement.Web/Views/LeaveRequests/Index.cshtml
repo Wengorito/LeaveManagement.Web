@@ -4,7 +4,7 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Admin leave requests view</h1>
+<h1>Leave requests admin page</h1>
 
 <div class="row">
     <div class="col-3">
@@ -41,7 +41,7 @@
     </div>
 </div>
 <hr/>
-<h1>Leave request log</h1>
+<h2>Leave request log</h2>
 <hr />
 <table class="table">
     <thead>
@@ -61,7 +61,7 @@
             <th>
                 @Html.DisplayNameFor(model => model.LeaveRequests[0].DateRequested)
             </th>
-                <th>
+            <th>
                 @Html.DisplayNameFor(model => model.LeaveRequests[0].Approved)
             </th>
             <th></th>
