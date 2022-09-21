@@ -5,7 +5,6 @@ using LeaveManagement.Web.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
@@ -67,6 +66,23 @@ namespace LeaveManagement.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Cancel(int id)
+        {
+            try
+            {
+                await _leaveRequestRepository.CancelLeaveRequest(id);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+            return RedirectToAction(nameof(MyLeaves));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         [Authorize(Roles = Roles.Administrator)]
         public async Task<IActionResult> ApproveRequest(int id, bool approved)
         {
@@ -87,8 +103,12 @@ namespace LeaveManagement.Web.Controllers
         public IActionResult Create()
         {
             var employeeId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (employeeId == null)
+                return NotFound();
+
             var model = new LeaveRequestCreateVM
-            {                
+            {
                 RequestingEmployeeId = employeeId,
                 LeaveTypes = new SelectList(_leaveTypesRepository.GetEmployeeLeaveTypes(employeeId).Result, "Id", "Name")
             };
@@ -112,7 +132,7 @@ namespace LeaveManagement.Web.Controllers
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError(string.Empty, "An Error has occurred. Please try again later");
+                ModelState.AddModelError(string.Empty, ex.Message);
             }
 
             model.LeaveTypes = new SelectList(_leaveTypesRepository.GetEmployeeLeaveTypes(model.RequestingEmployeeId).Result, "Id", "Name", model.LeaveTypeId);

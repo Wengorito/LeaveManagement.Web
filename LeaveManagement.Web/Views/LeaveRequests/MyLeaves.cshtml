@@ -50,13 +50,16 @@
                 @Html.DisplayNameFor(model => model.PendingRequests[0].EndDate)
             </th>
             <th>
+                Days total
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.PendingRequests[0].LeaveType)
             </th>
             <th>
-                Approval
+                Status
             </th>
             <th>
-                Cancel request
+                
             </th>
         </tr>
     </thead>
@@ -71,27 +74,16 @@
                     @Html.DisplayFor(modelItem => item.EndDate)
                 </td>
                 <td>
+                    @Html.DisplayFor(modelItem => (item.EndDate - item.StartDate).TotalDays)
+                </td>
+                <td>
                     @Html.DisplayFor(modelItem => item.LeaveType.Name)
                 </td>
                 <td>
-                    @if (item.Cancelled)
-                    {
-                        <span class="badge bg-secondary">Cancelled</span>
-                    }
-                    else if (item.Approved == null)
-                    {
-                        <span class="badge bg-warning">Pending</span>
-                    }
-                    else if (item.Approved == false)
-                    {
-                        <span class="badge bg-danger">Rejected</span>
-                    }
+                    <span class="badge bg-warning">Pending</span>
                 </td>
                 <td>
-                    @if (item.Approved == null)
-                    {
-                        <button data-id="@item.Id" class="btn btn-danger btn-sm deleteBtn" type="button"><i class="fa-regular fa-trash-can"></i></button>
-                    }
+                    <button data-id="@item.Id" class="btn btn-danger btn-sm cancelBtn" type="button">Cancel</button>
                 </td>
             </tr>
         }
@@ -109,12 +101,15 @@
                 @Html.DisplayNameFor(model => model.ArchivalRequests[0].EndDate)
             </th>
             <th>
+                Days total
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.ArchivalRequests[0].LeaveType)
             </th>
             <th>
-                Approval
+                Status
             </th>
-            <th>This should be hidden</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -126,6 +121,9 @@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.EndDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => (item.EndDate - item.StartDate).TotalDays)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.LeaveType.Name)
@@ -150,14 +148,14 @@
     </tbody>
 </table>
 
-<form id="deleteForm" asp-action="Delete">
+<form id="cancelForm" asp-action="Cancel">
     <input type="hidden" id="leaveRequestId" name="Id" />
 </form>
 
 @section Scripts{
     <script>
         $(function () {
-            $('.deleteBtn').click(function (e) {
+            $('.cancelBtn').click(function (e) {
                 swal({
                     title: "Are you sure?",
                     text: "Are you sure you want to cancel this request?",
@@ -169,7 +167,7 @@
                         var btn = $(this);
                         var id = btn.data("id");
                         $('#leaveRequestId').val(id);
-                        $('#deleteForm').submit();
+                        $('#cancelForm').submit();
                     }
                 });
             });

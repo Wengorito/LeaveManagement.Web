@@ -14,7 +14,7 @@
         public bool? Approved { get; set; }
         public bool Cancelled { get; set; }
 
-        // inconsistent naming omg tutor pls
+        // inconsistent naming tutor pls
         public string RequestingEmployeeId { get; set; }
     }
 }
