@@ -21,7 +21,7 @@ namespace LeaveManagement.Web.Models
         [Display(Name = "Request comment")]
         public string? RequestComments { get; set; }
 
-        public string RequestingEmployeeId { get; set; }
+        public string? RequestingEmployeeId { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

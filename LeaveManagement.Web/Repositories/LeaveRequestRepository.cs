@@ -45,8 +45,7 @@ namespace LeaveManagement.Web.Repositories
                 if (allocation == null)
                     return;
 
-                int daysRequested = (int)(leaveRequest.EndDate - leaveRequest.StartDate).TotalDays;
-                allocation.NumberOfDays -= daysRequested;
+                allocation.NumberOfDays -= (int)(leaveRequest.EndDate - leaveRequest.StartDate).TotalDays;
 
                 await _leaveAllocationRepository.UpdateAsync(allocation);
             }
@@ -71,7 +70,6 @@ namespace LeaveManagement.Web.Repositories
 
             var leaveRequest = _mapper.Map<LeaveRequest>(model);
             leaveRequest.DateRequested = DateTime.Now;
-            leaveRequest.RequestingEmployeeId = user.Id;
 
             await AddAscync(leaveRequest);
 
@@ -82,12 +80,11 @@ namespace LeaveManagement.Web.Repositories
         {
             var leaveRequest = await GetAsync(leaveRequestId);
 
-            if (leaveRequest == null)
-                return;
-
-            leaveRequest.Cancelled = true;
-
-            await UpdateAsync(leaveRequest);
+            if (leaveRequest != null)
+            {
+                leaveRequest.Cancelled = true;
+                await UpdateAsync(leaveRequest);
+            }
         }
 
         public async Task<AdminLeaveRequestVM> GetAdminLeaveRequestList()
@@ -116,7 +113,7 @@ namespace LeaveManagement.Web.Repositories
             var requests = await _context.LeaveRequests
                 .Include(q => q.LeaveType)
                 .Where(q => q.RequestingEmployeeId == employeeId)
-                .Where(q => q.Approved != null)
+                .Where(q => q.Approved != null || q.Cancelled == true)
                 .ToListAsync();
 
             var model = _mapper.Map<List<LeaveRequestVM>>(requests);
@@ -135,6 +132,7 @@ namespace LeaveManagement.Web.Repositories
                 .Include(q => q.LeaveType)
                 .Where(q => q.RequestingEmployeeId == employeeId)
                 .Where(q => q.Approved == null)
+                .Where(q => q.Cancelled != true)
                 .ToListAsync();
 
             var model = _mapper.Map<List<LeaveRequestVM>>(requests);
@@ -157,6 +155,16 @@ namespace LeaveManagement.Web.Repositories
             var model = _mapper.Map<LeaveRequestVM>(leaveRequest);
             model.Employee = _mapper.Map<EmployeeVM>(await _userManager.FindByIdAsync(leaveRequest?.RequestingEmployeeId));
             return model;
+        }
+
+        public async Task CancelLeaveRequest(int leaveRequestId)
+        {
+            var leaveRequest = await GetAsync(leaveRequestId);
+            if (leaveRequest != null)
+            {
+                leaveRequest.Cancelled = true;
+                await UpdateAsync(leaveRequest);
+            }
         }
     }
 }

@@ -5,7 +5,6 @@ using LeaveManagement.Web.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
@@ -87,8 +86,12 @@ namespace LeaveManagement.Web.Controllers
         public IActionResult Create()
         {
             var employeeId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (employeeId == null)
+                return NotFound();
+
             var model = new LeaveRequestCreateVM
-            {                
+            {
                 RequestingEmployeeId = employeeId,
                 LeaveTypes = new SelectList(_leaveTypesRepository.GetEmployeeLeaveTypes(employeeId).Result, "Id", "Name")
             };

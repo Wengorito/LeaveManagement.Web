@@ -59,7 +59,7 @@
                 Approval status
             </th>
             <th>
-                Cancel request
+                
             </th>
         </tr>
     </thead>
@@ -96,7 +96,7 @@
                 <td>
                     @if (item.Approved == null && !item.Cancelled)
                     {
-                        <button data-id="@item.Id" class="btn btn-secondary btn-sm deleteBtn" type="button"><i class="fa-regular fa-trash-can"></i></button>
+                        <button data-id="@item.Id" class="btn btn-secondary btn-sm cancelBtn" type="button"><i class="fa-regular fa-trash-can"></i></button>
                     }
                 </td>
             </tr>
@@ -121,9 +121,9 @@
                 @Html.DisplayNameFor(model => model.ArchivalRequests[0].LeaveType)
             </th>
             <th>
-                Approval
+                Status
             </th>
-            <th>This should be hidden</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -162,14 +162,14 @@
     </tbody>
 </table>
 
-<form id="deleteForm" asp-action="Cancel">
+<form id="cancelForm" asp-action="Cancel">
     <input type="hidden" id="leaveRequestId" name="Id" />
 </form>
 
 @section Scripts{
     <script>
         $(function () {
-            $('.deleteBtn').click(function (e) {
+            $('.cancelBtn').click(function (e) {
                 swal({
                     title: "Are you sure?",
                     text: "Are you sure you want to cancel this request?",
@@ -181,7 +181,7 @@
                         var btn = $(this);
                         var id = btn.data("id");
                         $('#leaveRequestId').val(id);
-                        $('#deleteForm').submit();
+                        $('#cancelForm').submit();
                     }
                 });
             });
