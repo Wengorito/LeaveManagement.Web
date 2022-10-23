@@ -105,18 +105,43 @@ namespace LeaveManagement.Web.Controllers
             try
             {
                 if (ModelState.IsValid)
-                {
-                    await _leaveRequestRepository.CreateLeaveRequest(model);
+                {   
+                    var isValidRequest = await _leaveRequestRepository.CreateLeaveRequest(model);
+                    if (!isValidRequest)
+                    {
+                        ModelState.AddModelError(string.Empty, "You do not have enough remaining allocated days");
+
+                        model.LeaveTypes = new SelectList(_leaveTypesRepository.GetEmployeeLeaveTypes(
+                            model.RequestingEmployeeId).Result, "Id", "Name", model.LeaveTypeId);
+                        return View(model);
+                    }
                     return RedirectToAction(nameof(MyLeaves));
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                ModelState.AddModelError(string.Empty, "An Error has occurred. Please try again later");
+                ModelState.AddModelError(string.Empty, "An error occurred. Please try again later or contact the admin");
             }
 
-            model.LeaveTypes = new SelectList(_leaveTypesRepository.GetEmployeeLeaveTypes(model.RequestingEmployeeId).Result, "Id", "Name", model.LeaveTypeId);
+            model.LeaveTypes = new SelectList(_leaveTypesRepository.GetEmployeeLeaveTypes(
+                model.RequestingEmployeeId).Result, "Id", "Name", model.LeaveTypeId);
             return View(model);
+        }
+        
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Cancel(int id)
+        {
+            try
+            {
+                await _leaveRequestRepository.CancelLeaveRequest(id);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+            return RedirectToAction(nameof(MyLeaves));
         }
 
         // GET: LeaveRequests/Edit/5

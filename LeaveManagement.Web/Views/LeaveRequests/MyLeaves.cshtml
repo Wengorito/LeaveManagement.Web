@@ -50,10 +50,13 @@
                 @Html.DisplayNameFor(model => model.PendingRequests[0].EndDate)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.PendingRequests[0].DaysRequested)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.PendingRequests[0].LeaveType)
             </th>
             <th>
-                Approval
+                Approval status
             </th>
             <th>
                 Cancel request
@@ -70,6 +73,9 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.EndDate)
                 </td>
+                <th>
+                    @Html.DisplayNameFor(modelItem => item.DaysRequested)
+                </th>
                 <td>
                     @Html.DisplayFor(modelItem => item.LeaveType.Name)
                 </td>
@@ -88,9 +94,9 @@
                     }
                 </td>
                 <td>
-                    @if (item.Approved == null)
+                    @if (item.Approved == null && !item.Cancelled)
                     {
-                        <button data-id="@item.Id" class="btn btn-danger btn-sm deleteBtn" type="button"><i class="fa-regular fa-trash-can"></i></button>
+                        <button data-id="@item.Id" class="btn btn-secondary btn-sm deleteBtn" type="button"><i class="fa-regular fa-trash-can"></i></button>
                     }
                 </td>
             </tr>
@@ -107,6 +113,9 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.ArchivalRequests[0].EndDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ArchivalRequests[0].DaysRequested)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.ArchivalRequests[0].LeaveType)
@@ -127,6 +136,9 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.EndDate)
                 </td>
+                <th>
+                    @Html.DisplayNameFor(modelItem => item.DaysRequested)
+                </th>
                 <td>
                     @Html.DisplayFor(modelItem => item.LeaveType.Name)
                 </td>
@@ -150,7 +162,7 @@
     </tbody>
 </table>
 
-<form id="deleteForm" asp-action="Delete">
+<form id="deleteForm" asp-action="Cancel">
     <input type="hidden" id="leaveRequestId" name="Id" />
 </form>
 

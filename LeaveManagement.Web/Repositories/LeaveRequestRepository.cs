@@ -54,16 +54,40 @@ namespace LeaveManagement.Web.Repositories
             await UpdateAsync(leaveRequest);
         }
 
-        public async Task CreateLeaveRequest(LeaveRequestCreateVM model)
+        public async Task<bool> CreateLeaveRequest(LeaveRequestCreateVM model)
         {
-            // Here I retrieve user id anyway - why not attach it to the VM
             var user = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext?.User);
+
+            var allocation = await _leaveAllocationRepository.GetEmployeeAllocation(user.Id, model.LeaveTypeId);
+
+            if (allocation == null)
+                return false;
+
+            var daysLeft = allocation.NumberOfDays;
+            var daysRequested = model.EndDate!.Value.Subtract(model.StartDate!.Value).Days;
+
+            if (daysLeft < daysRequested)
+                return false;                ;
 
             var leaveRequest = _mapper.Map<LeaveRequest>(model);
             leaveRequest.DateRequested = DateTime.Now;
             leaveRequest.RequestingEmployeeId = user.Id;
 
             await AddAscync(leaveRequest);
+
+            return true;
+        }
+
+        public async Task CancelLeaveRequest(int leaveRequestId)
+        {
+            var leaveRequest = await GetAsync(leaveRequestId);
+
+            if (leaveRequest == null)
+                return;
+
+            leaveRequest.Cancelled = true;
+
+            await UpdateAsync(leaveRequest);
         }
 
         public async Task<AdminLeaveRequestVM> GetAdminLeaveRequestList()
@@ -97,6 +121,11 @@ namespace LeaveManagement.Web.Repositories
 
             var model = _mapper.Map<List<LeaveRequestVM>>(requests);
 
+            foreach(var request in model)
+            {
+                request.DaysRequested = request.EndDate.Subtract(request.StartDate).Days;
+            }
+
             return model;
         }
 
@@ -109,6 +138,11 @@ namespace LeaveManagement.Web.Repositories
                 .ToListAsync();
 
             var model = _mapper.Map<List<LeaveRequestVM>>(requests);
+
+            foreach (var request in model)
+            {
+                request.DaysRequested = request.EndDate.Subtract(request.StartDate).Days;
+            }
 
             return model;
         }

@@ -9,9 +9,11 @@ namespace LeaveManagement.Web.Models
         [Display(Name = "Start date")]
         public DateTime StartDate { get; set; }
 
-
         [Display(Name = "End date")]
         public DateTime EndDate { get; set; }
+
+        [Display(Name = "Days requested")]
+        public int DaysRequested { get; set; }
 
         [Display(Name = "Leave type")]
         public LeaveTypeVM LeaveType { get; set; }
