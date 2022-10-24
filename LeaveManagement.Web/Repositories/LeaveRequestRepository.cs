@@ -66,7 +66,7 @@ namespace LeaveManagement.Web.Repositories
             var daysRequested = model.EndDate!.Value.Subtract(model.StartDate!.Value).Days;
 
             if (daysLeft < daysRequested)
-                return false;                ;
+                return false; ;
 
             var leaveRequest = _mapper.Map<LeaveRequest>(model);
             leaveRequest.DateRequested = DateTime.Now;
@@ -118,7 +118,7 @@ namespace LeaveManagement.Web.Repositories
 
             var model = _mapper.Map<List<LeaveRequestVM>>(requests);
 
-            foreach(var request in model)
+            foreach (var request in model)
             {
                 request.DaysRequested = request.EndDate.Subtract(request.StartDate).Days;
             }
@@ -155,16 +155,6 @@ namespace LeaveManagement.Web.Repositories
             var model = _mapper.Map<LeaveRequestVM>(leaveRequest);
             model.Employee = _mapper.Map<EmployeeVM>(await _userManager.FindByIdAsync(leaveRequest?.RequestingEmployeeId));
             return model;
-        }
-
-        public async Task CancelLeaveRequest(int leaveRequestId)
-        {
-            var leaveRequest = await GetAsync(leaveRequestId);
-            if (leaveRequest != null)
-            {
-                leaveRequest.Cancelled = true;
-                await UpdateAsync(leaveRequest);
-            }
         }
     }
 }
