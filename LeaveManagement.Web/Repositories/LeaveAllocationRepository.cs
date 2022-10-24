@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using LeaveManagement.Web.Constants;
 using LeaveManagement.Web.Contracts;
 using LeaveManagement.Web.Data;
@@ -15,17 +16,20 @@ namespace LeaveManagement.Web.Repositories
         private readonly UserManager<Employee> _userManager;
         private readonly ILeaveTypeRepository _leaveTypeRepository;
         private readonly IMapper _mapper;
+        private readonly AutoMapper.IConfigurationProvider _configurationProvider;
 
         public LeaveAllocationRepository(
             ApplicationDbContext context,
             UserManager<Employee> userManager,
             ILeaveTypeRepository leaveTypeRepository,
-            IMapper mapper) : base(context)
+            IMapper mapper,
+            AutoMapper.IConfigurationProvider configurationProvider) : base(context)
         {
             _context = context;
             _userManager = userManager;
             _leaveTypeRepository = leaveTypeRepository;
             _mapper = mapper;
+            _configurationProvider = configurationProvider;
         }
 
         public async Task<bool> AllocationExists(string employeeId, int leaveTypeId, int period)
@@ -62,12 +66,11 @@ namespace LeaveManagement.Web.Repositories
 
         public async Task<List<LeaveAllocationVM>> GetAllVMAsync(string employeeId)
         {
-            var allocations = await _context.LeaveAllocations
+            return await _context.LeaveAllocations
                 .Include(q => q.LeaveType)
                 .Where(q => q.EmployeeId == employeeId)
+                .ProjectTo<LeaveAllocationVM>(_configurationProvider)
                 .ToListAsync();
-
-            return _mapper.Map<List<LeaveAllocationVM>>(allocations);
         }
 
         public async Task<EmployeeAllocationsVM> GetEmployeeAllocations(string employeeId)
@@ -78,20 +81,19 @@ namespace LeaveManagement.Web.Repositories
             return model;
         }
 
-        public async Task<LeaveAllocationEditVM> GetEmployeeAllocation(int allocationId)
+        public async Task<LeaveAllocationEditVM?> GetEmployeeAllocation(int allocationId)
         {
-            var allocation = await _context.LeaveAllocations
+            var allocationModel = await _context.LeaveAllocations
                 .Include(q => q.LeaveType)
+                .ProjectTo<LeaveAllocationEditVM>(_configurationProvider)
                 .SingleOrDefaultAsync(q => q.Id == allocationId);
 
-            if (allocation == null)
+            if (allocationModel == null)
                 return null;
 
-            var model = _mapper.Map<LeaveAllocationEditVM>(allocation);
+            allocationModel.Employee = _mapper.Map<EmployeeVM>(await _userManager.FindByIdAsync(allocationModel.EmployeeId));
 
-            model.Employee = _mapper.Map<EmployeeVM>(await _userManager.FindByIdAsync(allocation.EmployeeId));
-
-            return model;
+            return allocationModel;
         }
 
         public async Task<bool> UpdateEmployeeAllocation(LeaveAllocationEditVM model)

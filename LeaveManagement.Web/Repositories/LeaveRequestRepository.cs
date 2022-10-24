@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using LeaveManagement.Web.Contracts;
 using LeaveManagement.Web.Data;
 using LeaveManagement.Web.Models;
@@ -14,19 +15,22 @@ namespace LeaveManagement.Web.Repositories
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly UserManager<Employee> _userManager;
+        private readonly AutoMapper.IConfigurationProvider _configurationProvider;
 
         public LeaveRequestRepository(
             ApplicationDbContext context,
             ILeaveAllocationRepository leaveAllocationRepository,
             IMapper mapper,
             IHttpContextAccessor httpContextAccessor,
-            UserManager<Employee> userManager) : base(context)
+            UserManager<Employee> userManager,
+            AutoMapper.IConfigurationProvider configurationProvider) : base(context)
         {
             _context = context;
             _leaveAllocationRepository = leaveAllocationRepository;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _userManager = userManager;
+            _configurationProvider = configurationProvider;
         }
 
         public async Task ChangeApprovalStatus(int leaveRequestId, bool approved)
@@ -59,14 +63,8 @@ namespace LeaveManagement.Web.Repositories
 
             var allocation = await _leaveAllocationRepository.GetEmployeeAllocation(user.Id, model.LeaveTypeId);
 
-            if (allocation == null)
+            if (allocation == null || allocation.NumberOfDays < model.EndDate!.Value.Subtract(model.StartDate!.Value).Days)
                 return false;
-
-            var daysLeft = allocation.NumberOfDays;
-            var daysRequested = model.EndDate!.Value.Subtract(model.StartDate!.Value).Days;
-
-            if (daysLeft < daysRequested)
-                return false; ;
 
             var leaveRequest = _mapper.Map<LeaveRequest>(model);
             leaveRequest.DateRequested = DateTime.Now;
@@ -114,16 +112,15 @@ namespace LeaveManagement.Web.Repositories
                 .Include(q => q.LeaveType)
                 .Where(q => q.RequestingEmployeeId == employeeId)
                 .Where(q => q.Approved != null || q.Cancelled == true)
+                .ProjectTo<LeaveRequestVM>(_configurationProvider)
                 .ToListAsync();
 
-            var model = _mapper.Map<List<LeaveRequestVM>>(requests);
-
-            foreach (var request in model)
+            foreach (var request in requests)
             {
                 request.DaysRequested = request.EndDate.Subtract(request.StartDate).Days;
             }
 
-            return model;
+            return requests;
         }
 
         public async Task<List<LeaveRequestVM>> GetPendingAsync(string employeeId)
@@ -133,16 +130,15 @@ namespace LeaveManagement.Web.Repositories
                 .Where(q => q.RequestingEmployeeId == employeeId)
                 .Where(q => q.Approved == null)
                 .Where(q => q.Cancelled != true)
+                .ProjectTo<LeaveRequestVM>(_configurationProvider)
                 .ToListAsync();
 
-            var model = _mapper.Map<List<LeaveRequestVM>>(requests);
-
-            foreach (var request in model)
+            foreach (var request in requests)
             {
                 request.DaysRequested = request.EndDate.Subtract(request.StartDate).Days;
             }
 
-            return model;
+            return requests;
         }
 
         public async Task<LeaveRequestVM?> GetLeaveRequestAsync(int? id)
@@ -153,7 +149,7 @@ namespace LeaveManagement.Web.Repositories
                 return null;
 
             var model = _mapper.Map<LeaveRequestVM>(leaveRequest);
-            model.Employee = _mapper.Map<EmployeeVM>(await _userManager.FindByIdAsync(leaveRequest?.RequestingEmployeeId));
+            model.Employee = _mapper.Map<EmployeeVM>(await _userManager.FindByIdAsync(leaveRequest.RequestingEmployeeId));
             return model;
         }
     }

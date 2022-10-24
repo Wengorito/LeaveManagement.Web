@@ -15,8 +15,8 @@ namespace LeaveManagement.Web.Repositories
 
         public async Task<IEnumerable<LeaveType>> GetEmployeeLeaveTypes(string employeeId)
         {
-            //var allocations = _leaveAllocationRepository.GetAllAsync(employeeId)
             var leaveTypeIds = _context.LeaveAllocations.Where(q => q.EmployeeId == employeeId).Select(q => q.LeaveTypeId);
+
             return await _context.LeaveTypes.Where(q => leaveTypeIds.Contains(q.Id)).ToListAsync();
         }
     }

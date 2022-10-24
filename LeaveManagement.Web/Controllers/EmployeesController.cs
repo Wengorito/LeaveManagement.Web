@@ -63,7 +63,7 @@ namespace LeaveManagement.Web.Controllers
                         return RedirectToAction(nameof(ViewAllocations), new { id = model.EmployeeId });
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 ModelState.AddModelError(string.Empty, "An Error has occurred. Please try again later");
             }

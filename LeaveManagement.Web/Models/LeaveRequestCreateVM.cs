@@ -21,19 +21,19 @@ namespace LeaveManagement.Web.Models
         [Display(Name = "Request comment")]
         public string? RequestComments { get; set; }
 
-        public string? RequestingEmployeeId { get; set; }
+        public string RequestingEmployeeId { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (StartDate < DateTime.Now)
             {
-                yield return new ValidationResult("The Start date must be after today's date", 
-                    new[] { nameof(StartDate)});
+                yield return new ValidationResult("The Start date must be after today's date",
+                    new[] { nameof(StartDate) });
             }
 
             if (StartDate > EndDate)
             {
-                yield return new ValidationResult("The Start date must be before the End date", 
+                yield return new ValidationResult("The Start date must be before the End date",
                     new[] { nameof(StartDate), nameof(EndDate) });
             }
 

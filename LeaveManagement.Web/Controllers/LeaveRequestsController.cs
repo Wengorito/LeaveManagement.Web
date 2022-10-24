@@ -1,11 +1,9 @@
 ﻿using LeaveManagement.Web.Constants;
 using LeaveManagement.Web.Contracts;
-using LeaveManagement.Web.Data;
 using LeaveManagement.Web.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace LeaveManagement.Web.Controllers
@@ -16,22 +14,18 @@ namespace LeaveManagement.Web.Controllers
         private readonly ILeaveRequestRepository _leaveRequestRepository;
         private readonly ILeaveAllocationRepository _leaveAllocationRepository;
         private readonly ILeaveTypeRepository _leaveTypesRepository;
-        private readonly ApplicationDbContext _context;
 
         public LeaveRequestsController(
             ILeaveRequestRepository leaveRequestRepository,
             ILeaveAllocationRepository leaveAllocationRepository,
-            ILeaveTypeRepository leaveTypesRepository,
-            ApplicationDbContext applicationDbContext)
+            ILeaveTypeRepository leaveTypesRepository)
         {
             _leaveRequestRepository = leaveRequestRepository;
             _leaveAllocationRepository = leaveAllocationRepository;
             _leaveTypesRepository = leaveTypesRepository;
-            _context = applicationDbContext;
         }
 
         [Authorize(Roles = Roles.Administrator)]
-        // GET: LeaveRequests
         public async Task<IActionResult> Index()
         {
             var model = await _leaveRequestRepository.GetAdminLeaveRequestList();
@@ -46,12 +40,15 @@ namespace LeaveManagement.Web.Controllers
             var archivalRequests = await _leaveRequestRepository.GetArchivalAsync(employeeId);
             var pendingRequests = await _leaveRequestRepository.GetPendingAsync(employeeId);
 
+            // Technically I could've moved creating VM resposibility to one of the repositories
+            // Although its arbitrary to which one 
+            // Good question is whether this would speed up the process of retriving data from the DB
+            // For now it stays here though
             var model = new MyLeavesVM(allocations, archivalRequests, pendingRequests);
 
             return View(model);
         }
 
-        // GET: LeaveRequests/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             var model = await _leaveRequestRepository.GetLeaveRequestAsync(id);
@@ -74,7 +71,7 @@ namespace LeaveManagement.Web.Controllers
                 await _leaveRequestRepository.ChangeApprovalStatus(id, approved);
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
                 throw;
@@ -82,7 +79,6 @@ namespace LeaveManagement.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: LeaveRequests/Create
         public IActionResult Create()
         {
             var employeeId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -98,9 +94,6 @@ namespace LeaveManagement.Web.Controllers
             return View(model);
         }
 
-        // POST: LeaveRequests/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(LeaveRequestCreateVM model)
@@ -108,7 +101,7 @@ namespace LeaveManagement.Web.Controllers
             try
             {
                 if (ModelState.IsValid)
-                {   
+                {
                     var isValidRequest = await _leaveRequestRepository.CreateLeaveRequest(model);
                     if (!isValidRequest)
                     {
@@ -130,7 +123,7 @@ namespace LeaveManagement.Web.Controllers
                 model.RequestingEmployeeId).Result, "Id", "Name", model.LeaveTypeId);
             return View(model);
         }
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Cancel(int id)
@@ -145,83 +138,6 @@ namespace LeaveManagement.Web.Controllers
             }
 
             return RedirectToAction(nameof(MyLeaves));
-        }
-
-        // GET: LeaveRequests/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null || _context.LeaveRequests == null)
-            {
-                return NotFound();
-            }
-
-            var leaveRequest = await _context.LeaveRequests.FindAsync(id);
-            if (leaveRequest == null)
-            {
-                return NotFound();
-            }
-            ViewData["LeaveTypeId"] = new SelectList(_context.LeaveTypes, "Id", "Id", leaveRequest.LeaveTypeId);
-            return View(leaveRequest);
-        }
-
-        // POST: LeaveRequests/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("StartDate,EndDate,LeaveTypeId,DateRequested,RequestComments,Approved,Cancelled,RequestingEmployeeId,Id,DateCreated,DateModified")] LeaveRequest leaveRequest)
-        {
-            if (id != leaveRequest.Id)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(leaveRequest);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!LeaveRequestExists(leaveRequest.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["LeaveTypeId"] = new SelectList(_context.LeaveTypes, "Id", "Id", leaveRequest.LeaveTypeId);
-            return View(leaveRequest);
-        }
-
-        // POST: LeaveRequests/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(int id)
-        {
-            if (_context.LeaveRequests == null)
-            {
-                return Problem("Entity set 'ApplicationDbContext.LeaveRequests'  is null.");
-            }
-            var leaveRequest = await _context.LeaveRequests.FindAsync(id);
-            if (leaveRequest != null)
-            {
-                _context.LeaveRequests.Remove(leaveRequest);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(MyLeaves));
-        }
-
-        private bool LeaveRequestExists(int id)
-        {
-            return (_context.LeaveRequests?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

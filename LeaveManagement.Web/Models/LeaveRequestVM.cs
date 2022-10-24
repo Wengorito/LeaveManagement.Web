@@ -7,11 +7,13 @@ namespace LeaveManagement.Web.Models
         public int Id { get; set; }
 
         [Display(Name = "Start date")]
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
+        [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}")]
+        [DataType(DataType.Date)]
         public DateTime StartDate { get; set; }
 
         [Display(Name = "End date")]
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
+        [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}")]
+        [DataType(DataType.Date)]
         public DateTime EndDate { get; set; }
 
         [Display(Name = "Days requested")]
