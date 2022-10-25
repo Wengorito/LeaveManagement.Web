@@ -14,5 +14,7 @@ namespace LeaveManagement.Web.Models
         [Required]
         [Range(1, 25, ErrorMessage = "Please enter a number between 1 and 25")]
         public int DefaultDays { get; set; }
+
+        public bool Allocated { get; set; }
     }
 }

@@ -25,6 +25,7 @@ namespace LeaveManagement.Web.Controllers
 
         public async Task<IActionResult> Index()
         {
+            // Possibly move mapping to VM to repository
             return _leaveTypeRepository != null ?
                         View(_mapper.Map<List<LeaveTypeVM>>(await _leaveTypeRepository.GetAllAsync())) :
                         Problem("Entity set 'LeaveTypesRepository' is null.");

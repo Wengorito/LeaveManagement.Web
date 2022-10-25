@@ -4,5 +4,6 @@
     {
         public string Name { get; set; }
         public int DefaultDays { get; set; }
+        public bool Allocated { get; set; }
     }
 }
