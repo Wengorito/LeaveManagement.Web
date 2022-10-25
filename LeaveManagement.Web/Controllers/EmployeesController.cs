@@ -15,12 +15,14 @@ namespace LeaveManagement.Web.Controllers
         private readonly ILeaveAllocationRepository _leaveAllocationRepository;
         private readonly UserManager<Employee> _userManager;
         private readonly IMapper _mapper;
+        private readonly ILogger<EmployeesController> _logger;
 
-        public EmployeesController(ILeaveAllocationRepository leaveAllocationRepository, UserManager<Employee> userManager, IMapper mapper)
+        public EmployeesController(ILeaveAllocationRepository leaveAllocationRepository, UserManager<Employee> userManager, IMapper mapper, ILogger<EmployeesController> logger)
         {
             _leaveAllocationRepository = leaveAllocationRepository;
             _userManager = userManager;
             _mapper = mapper;
+            _logger = logger;
         }
 
         // GET: EmployeesController
@@ -65,6 +67,7 @@ namespace LeaveManagement.Web.Controllers
             }
             catch (Exception)
             {
+                _logger.LogError(ex, "Error creating editing allocation");
                 ModelState.AddModelError(string.Empty, "An Error has occurred. Please try again later");
             }
 

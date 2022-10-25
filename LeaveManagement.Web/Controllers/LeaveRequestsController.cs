@@ -14,15 +14,18 @@ namespace LeaveManagement.Web.Controllers
         private readonly ILeaveRequestRepository _leaveRequestRepository;
         private readonly ILeaveAllocationRepository _leaveAllocationRepository;
         private readonly ILeaveTypeRepository _leaveTypesRepository;
+        private readonly ILogger<LeaveRequestsController> _logger;
 
         public LeaveRequestsController(
             ILeaveRequestRepository leaveRequestRepository,
             ILeaveAllocationRepository leaveAllocationRepository,
-            ILeaveTypeRepository leaveTypesRepository)
+            ILeaveTypeRepository leaveTypesRepository,
+            ILogger<LeaveRequestsController> logger)
         {
             _leaveRequestRepository = leaveRequestRepository;
             _leaveAllocationRepository = leaveAllocationRepository;
             _leaveTypesRepository = leaveTypesRepository;
+            _logger = logger;
         }
 
         [Authorize(Roles = Roles.Administrator)]
@@ -71,9 +74,10 @@ namespace LeaveManagement.Web.Controllers
                 await _leaveRequestRepository.ChangeApprovalStatus(id, approved);
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                // This will actually log twice
+                _logger.LogError(ex, "Error approving leave request");
                 throw;
             }
             return RedirectToAction(nameof(Index));
@@ -114,8 +118,9 @@ namespace LeaveManagement.Web.Controllers
                     return RedirectToAction(nameof(MyLeaves));
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "Error creating leave request");
                 ModelState.AddModelError(string.Empty, "An error occurred. Please try again later or contact the admin");
             }
 
