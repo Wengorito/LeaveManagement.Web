@@ -67,7 +67,7 @@ namespace LeaveManagement.Web.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating editing allocation");
+                _logger.LogError(ex, "Error editing allocation");
                 ModelState.AddModelError(string.Empty, "An Error has occurred. Please try again later");
             }
 
