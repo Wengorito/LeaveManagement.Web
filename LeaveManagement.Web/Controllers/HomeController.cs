@@ -38,7 +38,7 @@ namespace LeaveManagement.Web.Controllers
             if (exceptionHandlerPathFeature != null)
             {
                 var exception = exceptionHandlerPathFeature.Error;
-                _logger.LogError(exception, $"Error encountered by user: {User?.Identity?.Name} | Request Id: {requestId}");
+                //_logger.LogError(exception, $"Error encountered by user: {User?.Identity?.Name} | Request Id: {requestId}");
 
                 await _emailSender.SendEmailAsync("hvitr.ulfr@gmail.com", $"Exception : {exception.ToString}", $"Details\n: " +
                 $"{exception.Message}");
