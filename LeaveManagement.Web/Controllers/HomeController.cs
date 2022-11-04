@@ -1,5 +1,4 @@
 ﻿using LeaveManagement.Common.Models;
-using LeaveManagement.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -12,21 +11,16 @@ namespace LeaveManagement.Web.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IEmailSender _emailSender;
-        private readonly ApplicationDbContext _context;
 
-        public HomeController(ILogger<HomeController> logger, IEmailSender emailSender, ApplicationDbContext context)
+        public HomeController(ILogger<HomeController> logger, IEmailSender emailSender)
         {
             _logger = logger;
             _emailSender = emailSender;
-            _context = context;
         }
 
         public IActionResult Index()
         {
-            var anythingFromDb = _context.LeaveTypes.Select(x => x.Name).ToList();
-            var name = anythingFromDb.First();
-
-            return View("Index", name);
+            return View();
         }
 
         [Authorize]
