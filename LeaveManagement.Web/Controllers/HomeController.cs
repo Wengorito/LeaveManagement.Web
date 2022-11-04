@@ -1,4 +1,5 @@
 ﻿using LeaveManagement.Common.Models;
+using LeaveManagement.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -11,16 +12,21 @@ namespace LeaveManagement.Web.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly ApplicationDbContext _context;
 
-        public HomeController(ILogger<HomeController> logger, IEmailSender emailSender)
+        public HomeController(ILogger<HomeController> logger, IEmailSender emailSender, ApplicationDbContext context)
         {
             _logger = logger;
             _emailSender = emailSender;
+            _context = context;
         }
 
         public IActionResult Index()
         {
-            return View();
+            var anythingFromDb = _context.LeaveTypes.Select(x => x.Name).ToList();
+            var name = anythingFromDb.First();
+
+            return View("Index", name);
         }
 
         [Authorize]
@@ -38,7 +44,7 @@ namespace LeaveManagement.Web.Controllers
             if (exceptionHandlerPathFeature != null)
             {
                 var exception = exceptionHandlerPathFeature.Error;
-                //_logger.LogError(exception, $"Error encountered by user: {User?.Identity?.Name} | Request Id: {requestId}");
+                _logger.LogError(exception, $"Error encountered by user: {User?.Identity?.Name} | Request Id: {requestId}");
 
                 await _emailSender.SendEmailAsync("hvitr.ulfr@gmail.com", $"Exception : {exception.ToString}", $"Details\n: " +
                 $"{exception.Message}");

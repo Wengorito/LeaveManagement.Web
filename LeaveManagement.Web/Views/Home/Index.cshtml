@@ -1,4 +1,5 @@
-﻿@{
+﻿@model string
+@{
     ViewData["Title"] = "Home Page";
 }
 
@@ -8,11 +9,15 @@
 <h6><a href="https://github.com/trevoirwilliams/LeaveManagementWeb-Net6/tree/b974deeb643d14177ae77e0ac4fe9e9bebcc68b7">Original repository</a></h6>
 <br />
 
-<h2>RUNNING IN AZURE - test - debug mode</h2>
+<h2>RUNNING IN AZURE - test - query DB without logging</h2>
 
 <div class="jumbotron">
     <h1>.NET 💜 Azure</h1>
     <p class="lead">Example .NET app to Azure App Service.</p>
+    <p>
+        DB query works - 
+        @Model.ToLower()
+    </p>
 </div>
 
 <p><strong>Strong Foundation in .NET Core topics:</strong></p>
