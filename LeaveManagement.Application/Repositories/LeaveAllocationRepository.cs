@@ -73,6 +73,9 @@ namespace LeaveManagement.Application.Repositories
 
             await AddRangeAscync(allocations);
 
+            leaveType.Allocated = true;
+            await _leaveTypeRepository.UpdateAsync(leaveType);
+
             foreach (var employee in employeesToNotify)
             {
                 await _emailSender.SendEmailAsync(employee.Email, $"Leave allocation for {period}",

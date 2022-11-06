@@ -23,7 +23,7 @@ builder.Services.AddDefaultIdentity<Employee>(options => options.SignIn.RequireC
 builder.Services.AddHttpContextAccessor();
 
 // New instance of the email server each time 
-builder.Services.AddTransient<IEmailSender>(s => new EmailSender("localhost", 25, "no-reply@leavemanagement.com"));
+//builder.Services.AddTransient<IEmailSender>(s => new EmailSender("localhost", 25, "no-reply@leavemanagement.com"));
 
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<ILeaveTypeRepository, LeaveTypeRepository>();
