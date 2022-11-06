@@ -10,12 +10,10 @@ namespace LeaveManagement.Web.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly IEmailSender _emailSender;
 
-        public HomeController(ILogger<HomeController> logger, IEmailSender emailSender)
+        public HomeController(ILogger<HomeController> logger)
         {
             _logger = logger;
-            _emailSender = emailSender;
         }
 
         public IActionResult Index()
@@ -30,7 +28,7 @@ namespace LeaveManagement.Web.Controllers
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public async Task<IActionResult> ErrorAsync()
+        public IActionResult Error()
         {
             var requestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
             var exceptionHandlerPathFeature = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
@@ -39,9 +37,6 @@ namespace LeaveManagement.Web.Controllers
             {
                 var exception = exceptionHandlerPathFeature.Error;
                 _logger.LogError(exception, $"Error encountered by user: {User?.Identity?.Name} | Request Id: {requestId}");
-
-                await _emailSender.SendEmailAsync("hvitr.ulfr@gmail.com", $"Exception : {exception.ToString}", $"Details\n: " +
-                $"{exception.Message}");
             }
 
             return View(new ErrorViewModel { RequestId = requestId });
