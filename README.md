@@ -2,7 +2,7 @@
 Leave Management System - Udemy course project built with .NET 6
 
 ## Strong Foundation in .NET Core web development
-Smooth transition from ASP.NET MVC 5 to ASP.NET Core MVC
+Accomplishing project helped my smooth transition from ASP.NET MVC 5 to ASP.NET Core MVC framework
 
 ### Topics covered
 - Build a fully data driven web application using cutting edge technology
