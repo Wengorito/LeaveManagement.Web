@@ -31,7 +31,7 @@
                 @Html.DisplayFor(modelItem => item.DefaultDays)
             </td>
             <td>
-                    <button data-id="@item.Id" class="btn btn-primary allocateBtn" type="button"><i class="fa-solid fa-plus"></i></button>
+                    <button data-id="@item.Id" class="btn btn-primary allocateBtn" type="button"><i class="fa-sharp fa-solid fa-person-circle-plus"></i></button>
                     <a class="btn btn-info" asp-action="Details" asp-route-id="@item.Id"><i class="fa-solid fa-info"></i></a>
                     <a class="btn btn-warning" asp-action="Edit" asp-route-id="@item.Id"><i class="fa-regular fa-pen-to-square"></i></a>
                     @if (!item.Allocated)

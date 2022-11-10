@@ -4,6 +4,10 @@ Leave Management System - Udemy course project built with .NET 6
 ## Strong Foundation in .NET Core web development
 Accomplishing project helped my smooth transition from ASP.NET MVC 5 to ASP.NET Core MVC framework
 
+### Deployment
+Demo availabe at:
+[Azure App Service](https://leavemanagementweb20221029173908.azurewebsites.net/)
+
 ### Topics covered
 - Build a fully data driven web application using cutting edge technology
 - Connect to a Database using Entity Framework Core
@@ -22,10 +26,6 @@ Accomplishing project helped my smooth transition from ASP.NET MVC 5 to ASP.NET 
 - Setup Microsoft Azure Account
 - Publish .NET Core Application to IIS
 - Publish .NET Core Application to Microsoft Azure App Services
-
-### Deployment
-Demo availabe at:
-[Azure App Service](https://leavemanagementweb20221029173908.azurewebsites.net/)
 
 ### Project configuration steps for the proper build:
 - libman.json -> Enable Client-Side Libraries Restore on Build
