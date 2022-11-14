@@ -6,7 +6,7 @@ Accomplishing project facilitated smooth transition from ASP.NET MVC 5 to ASP.NE
 
 ### Deployment
 Demo availabe at:
-[Azure App Service](https://leavemanagementweb20221029173908.azurewebsites.net/)
+>[Azure App Service](https://leavemanagementweb20221029173908.azurewebsites.net/)
 
 ### Topics covered
 - Build a fully data driven web application using cutting edge technology
